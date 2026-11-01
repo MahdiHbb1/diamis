@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simulasi Evaluasi AI | DIAMIS</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --paper: #f6f1e7;
+      --surface: #fbf7ef;
+      --ink: #1c1b18;
+      --muted: #5b5a54;
+      --rule: #d8cdba;
+      --gold: #c49a3a;
+      --teal: #2e6b64;
+      --red: #b83a2a;
+      --amber: #8a5a12;
+    }
+    
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.6;
+      padding: 0;
+    }
+    
+    .status-bar {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 8px 20px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--rule);
+      padding: 16px 20px;
+    }
+    
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    
+    .nav {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .nav a:hover,
+    .nav a[aria-current] {
+      color: var(--ink);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+    
+    .intro {
+      margin-bottom: 48px;
+    }
+    
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    
+    h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    
+    .lead {
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 70ch;
+    }
+    
+    .notice {
+      margin-top: 20px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-left: 3px solid var(--gold);
+      border-radius: 3px;
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 80ch;
+      line-height: 1.65;
+    }
+    
+    .notice strong { color: var(--ink); }
+    
+    .notice a {
+      color: var(--ink);
+      font-weight: 600;
+    }
+    
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .card h2 {
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+    
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      border-radius: 3px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    
+    .btn:hover {
+      background: var(--gold);
+      color: var(--ink);
+    }
+    
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--ink);
+      border: 1px solid var(--rule);
+    }
+    
+    .btn-secondary:hover {
+      border-color: var(--ink);
+    }
+    
+    .status {
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(46, 107, 100, 0.1);
+      border-left: 3px solid var(--teal);
+      font-size: 14px;
+      color: var(--teal);
+    }
+    
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 20px;
+    }
+    
+    .kpi-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--ink);
+      display: block;
+      margin-bottom: 4px;
+    }
+    
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    
+    .kpi.red .kpi-value { color: var(--red); }
+    .kpi.teal .kpi-value { color: var(--teal); }
+    .kpi.amber .kpi-value { color: var(--amber); }
+    
+    .charts {
+      display: grid;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    
+    .chart {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 24px;
+    }
+    
+    .chart-title {
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    
+    .bar {
+      margin-bottom: 12px;
+    }
+    
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    
+    .bar-track {
+      width: 100%;
+      height: 24px;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    
+    .bar-fill {
+      height: 100%;
+      background: var(--ink);
+      transition: width 0.3s ease;
+    }
+    
+    .bar-fill.red { background: var(--red); }
+    .bar-fill.teal { background: var(--teal); }
+    .bar-fill.amber { background: var(--amber); }
+    
+    .inspector {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    
+    @media (min-width: 900px) {
+      .inspector {
+        grid-template-columns: 400px 1fr;
+      }
+    }
+    
+    .form-field {
+      margin-bottom: 16px;
+    }
+    
+    .form-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    
+    .form-field select,
+    .form-field textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      background: var(--paper);
+      font-family: inherit;
+      font-size: 14px;
+    }
+    
+    .form-field textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .queue {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 16px;
+    }
+    
+    .queue-item {
+      padding: 12px;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    
+    .queue-item:hover {
+      border-color: var(--gold);
+    }
+    
+    .queue-item.active {
+      border-color: var(--ink);
+      background: var(--surface);
+    }
+    
+    .diagnosis {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 24px;
+    }
+    
+    .diagnosis-header {
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--rule);
+    }
+    
+    .diagnosis-title {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .compare-box {
+      padding: 12px;
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 3px;
+    }
+    
+    .compare-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    
+    .compare-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .evidence {
+      margin-bottom: 20px;
+      padding: 16px;
+      background: var(--paper);
+      border-left: 3px solid var(--gold);
+    }
+    
+    .evidence blockquote {
+      font-style: italic;
+      margin-bottom: 12px;
+      line-height: 1.7;
+    }
+    
+    mark {
+      background: rgba(196, 154, 58, 0.3);
+      padding: 2px 4px;
+    }
+    
+    .conf-section {
+      margin-top: 20px;
+    }
+    
+    .conf-title {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .conf-bars {
+      display: grid;
+      gap: 12px;
+    }
+    
+    @media (max-width: 600px) {
+      .compare {
+        grid-template-columns: 1fr;
+      }
+      
+      .kpis {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body data-page="simulate">
+  <div class="status-bar">SIMULASI DEMO JURI · EVALUATOR LOKAL · DATA SINTETIS</div>
+  
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">DIAMIS</a>
+      <nav class="nav">
+        <a href="index.html">Beranda</a>
+        <a href="simulasi-ai.html" aria-current="page">Simulasi AI</a>
+        <a href="tentang.html">Metode</a>
+      </nav>
+    </div>
+  </header>
+  
+  <main class="container">
+    <div class="intro">
+      <p class="eyebrow">Simulasi Evaluasi AI · Detektor + Penama</p>
+      <h1>Unggah data siswa, lihat alur diagnosis</h1>
+      <p class="lead">Uji cara DIAMIS membaca jawaban dan penjelasan tertulis, memetakan grafik miskonsepsi, serta menampilkan bukti dan skor keyakinan ilustratif. Simulasi ini memakai aturan kata kunci di browser, bukan model notebook.</p>
+      <p class="notice">
+        <strong>Hasil evaluasi model:</strong> akurasi 71,4% dan macro-F1 0,695 pada 15 soal baru (LOQO, V2 + kalibrasi). Angka ini berasal dari notebook, bukan dari simulasi ini. <a href="tentang.html#metode">Lihat metode dan batasannya</a>.
+      </p>
+    </div>
+    
+    <!-- LANGKAH 1: UPLOAD -->
+    <div class="card">
+      <p class="eyebrow">Langkah 1 · Input Data</p>
+      <h2>Unggah CSV atau muat sampel</h2>
+      <p>Format: <code>ID, Soal, Jawaban, Penjelasan</code>. Proses lokal di browser.</p>
+      
+      <div class="btn-group">
+        <button class="btn" id="btn-load-sample">Muat Sampel (20 Respons)</button>
+        <label class="btn btn-secondary" for="file-input">Unggah CSV/JSON</label>
+        <input type="file" id="file-input" accept=".csv,.json" hidden>
+        <button class="btn btn-secondary" id="btn-download-sample">Unduh Contoh CSV</button>
+      </div>
+      
+      <div class="status" id="upload-status">Klik "Muat Sampel" untuk memulai demo.</div>
+    </div>
+    
+    <!-- LANGKAH 2: DASHBOARD -->
+    <div id="dashboard" style="display:none;">
+      <p class="eyebrow">Langkah 2 · Ringkasan Batch</p>
+      <h2>Hasil pemetaan kelas</h2>
+      
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kpi-label">Total Respons</div>
+          <span class="kpi-value" id="kpi-total">0</span>
+          <div class="kpi-sub">100% selesai evaluasi</div>
+        </div>
+        <div class="kpi red">
+          <div class="kpi-label">Miskonsepsi Tersembunyi</div>
+          <span class="kpi-value" id="kpi-hidden">0</span>
+          <div class="kpi-sub">Jawaban benar, penalaran keliru</div>
+        </div>
+        <div class="kpi teal">
+          <div class="kpi-label">Label Benar, Opsi Salah</div>
+          <span class="kpi-value" id="kpi-false-correct">0</span>
+          <div class="kpi-sub">Perlu audit label atau tinjauan</div>
+        </div>
+        <div class="kpi amber">
+          <div class="kpi-label">Rata-rata Skor Ilustratif</div>
+          <span class="kpi-value" id="kpi-avg-conf">0.00</span>
+          <div class="kpi-sub">Skor ilustratif detektor</div>
+        </div>
+      </div>
+      
+      <div class="charts">
+        <div class="chart">
+          <h3 class="chart-title">Distribusi 3 Kelas (Detektor Penjelasan)</h3>
+          <div id="chart-classes"></div>
+        </div>
+        
+        <div class="chart">
+          <h3 class="chart-title">Label Miskonsepsi (Penama Spesifik Soal)</h3>
+          <div id="chart-labels"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- LANGKAH 3: INSPECTOR -->
+    <div id="inspector-section" style="display:none;">
+      <p class="eyebrow">Langkah 3 · Inspektor Detail</p>
+      <h2>Bedah penjelasan & confidence</h2>
+      
+      <div class="inspector">
+        <!-- LEFT: Form + Queue -->
+        <div>
+          <div class="card">
+            <h3>Uji penjelasan langsung</h3>
+            <form id="live-test-form">
+              <div class="form-field">
+                <label for="test-question">Pilih Soal</label>
+                <select id="test-question">
+                  <option value="Q89443">(-8) - (-5) = ?</option>
+                  <option value="Q31772">Pecahan tidak diarsir</option>
+                  <option value="Q31778">A/10 = 9/15, A?</option>
+                  <option value="Q33472">1/3 + 2/5 = ?</option>
+                </select>
+              </div>
+              
+              <div class="form-field">
+                <label for="test-answer">Opsi Jawaban Siswa</label>
+                <select id="test-answer"></select>
+              </div>
+              
+              <div class="form-field">
+                <label for="test-explanation">Penjelasan Tertulis</label>
+                <textarea id="test-explanation" placeholder="Ketik penjelasan siswa..."></textarea>
+              </div>
+              
+              <button class="btn" type="submit">Evaluasi dengan DIAMIS</button>
+            </form>
+          </div>
+          
+          <div class="card">
+            <h3>Daftar Batch <span id="queue-count">(0 baris)</span></h3>
+            <div class="queue" id="batch-queue"></div>
+          </div>
+        </div>
+        
+        <!-- RIGHT: Diagnosis Output -->
+        <div class="diagnosis" id="diagnosis-output">
+          <div class="diagnosis-header">
+            <p class="eyebrow" id="dx-meta">RESPONS TERPILIH</p>
+            <h3 class="diagnosis-title" id="dx-title">Pilih respons dari daftar atau uji baru</h3>
+          </div>
+          
+          <div class="compare" id="dx-compare" style="display:none;">
+            <div class="compare-box">
+              <div class="compare-label">Auto-grader Biasa</div>
+              <div class="compare-value" id="dx-autograder">—</div>
+            </div>
+            <div class="compare-box">
+              <div class="compare-label">Keputusan DIAMIS</div>
+              <div class="compare-value" id="dx-diamis">—</div>
+            </div>
+          </div>
+          
+          <div class="evidence" id="dx-evidence" style="display:none;">
+            <p><strong>Penjelasan Siswa:</strong></p>
+            <blockquote id="dx-quote"></blockquote>
+            <p id="dx-rationale"></p>
+          </div>
+          
+          <div class="conf-section" id="dx-conf" style="display:none;">
+            <h4 class="conf-title">Confidence Model (Top-3 Kandidat)</h4>
+            <div class="conf-bars" id="dx-conf-bars"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app-simple.js"></script>
+</body>
+</html>

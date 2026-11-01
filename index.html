@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DIAMIS: Deteksi Miskonsepsi Matematika dengan AI</title>
+  <meta name="description" content="Sistem evaluasi AI untuk mendeteksi miskonsepsi tersembunyi dalam penjelasan matematika siswa. 403 kasus lolos auto-grader namun konsepnya keliru.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style-v2.css?v=4tahap">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header__inner">
+    <a href="index.html" class="logo">DIAMIS</a>
+    <nav class="nav">
+      <a href="index.html" aria-current="page">Beranda</a>
+      <a href="#problem">Masalah</a>
+      <a href="#demo">Demo</a>
+      <a href="#how">Cara Kerja</a>
+      <a href="simulasi-ai.html">Simulasi AI</a>
+      <a href="tentang.html">Metode</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO dengan Canvas Matematika -->
+<section class="hero">
+  <canvas class="hero__canvas" id="mathCanvas"></canvas>
+  
+  <div class="hero__content">
+    <span class="hero__badge">Penelitian Evaluasi AI Pendidikan</span>
+    <h1 class="hero__title">Jawaban benar belum tentu penalaran benar</h1>
+    <p class="hero__subtitle">
+      DIAMIS menggunakan AI untuk membaca penjelasan tertulis siswa, 
+      menemukan miskonsepsi tersembunyi yang lolos dari auto-grader, 
+      dan memprioritaskan kasus yang paling perlu ditinjau guru.
+    </p>
+    
+    <div class="hero__stats">
+      <div class="stat">
+        <span class="stat__number">403</span>
+        <span class="stat__label">Miskonsepsi tersembunyi dalam jawaban benar</span>
+      </div>
+      <div class="stat">
+        <span class="stat__number">71,4%</span>
+        <span class="stat__label">Akurasi deteksi LOQO (model akhir)</span>
+      </div>
+      <div class="stat">
+        <span class="stat__number">0,9105</span>
+        <span class="stat__label">MAP@3 penamaan pada soal dikenal</span>
+      </div>
+    </div>
+    <p class="hero__note">
+      Deteksi diuji pada 15 soal baru (LOQO); penamaan 0,9105 diuji pada soal
+      dikenal dengan teks terjemahan mesin, satu lipatan. MAP@3 bukan akurasi
+      deteksi. Keduanya hasil evaluasi notebook, bukan skor simulator web.
+    </p>
+    
+    <div class="hero__cta">
+      <a href="#demo" class="btn btn--primary">Lihat Demo Interaktif</a>
+      <a href="simulasi-ai.html" class="btn btn--secondary">Coba dengan Data Sendiri</a>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM SECTION -->
+<section class="section section--alt" id="problem">
+  <div class="container">
+    <div class="section__header">
+      <p class="section__kicker">Masalah Inti</p>
+      <h2 class="section__title">Auto-grader hanya melihat jawaban akhir</h2>
+      <p class="section__desc">
+        Sistem penilaian otomatis memeriksa apakah siswa memilih opsi yang benar. 
+        Tapi bagaimana jika siswa benar secara kebetulan? Bagaimana jika konsepnya keliru?
+      </p>
+    </div>
+    
+    <div class="comparison-grid">
+      <div class="comparison-card comparison-card--danger">
+        <div class="comparison-card__header">
+          <span class="badge badge--danger">Kasus 403</span>
+          <span class="badge badge--success">Jawaban Benar</span>
+        </div>
+        <p class="comparison-card__label">Soal: <span class="math">(-8) - (-5) = ?</span></p>
+        <p class="comparison-card__label">Jawaban siswa: B) -3 ✓</p>
+        <blockquote class="comparison-card__quote">
+          "8 dikurangi 5 sama dengan 3, lalu saya tambahkan tanda negatif."
+        </blockquote>
+        <div class="comparison-card__diagnosis">
+          <p><strong>Diagnosis AI:</strong></p>
+          <p>Miskonsepsi: Mengabaikan aturan tanda. Siswa memperlakukan (-8) - (-5) seperti 8 - 5, tidak memahami bahwa mengurangi negatif sama dengan menambah positif.</p>
+        </div>
+        <div class="comparison-card__footer">
+          <p><strong>Auto-grader:</strong> <span class="text-success">✓ Benar (1 poin)</span></p>
+          <p><strong>DIAMIS:</strong> <span class="text-danger">⚠ Perlu tinjauan guru</span></p>
+        </div>
+      </div>
+      
+      <div class="comparison-card comparison-card--success">
+        <div class="comparison-card__header">
+          <span class="badge badge--success">Pemahaman Solid</span>
+          <span class="badge badge--success">Jawaban Benar</span>
+        </div>
+        <p class="comparison-card__label">Soal: <span class="math">(-8) - (-5) = ?</span></p>
+        <p class="comparison-card__label">Jawaban siswa: B) -3 ✓</p>
+        <blockquote class="comparison-card__quote">
+          "(-8) - (-5) = (-8) + 5 = -3, karena mengurangi negatif sama dengan menambah positif."
+        </blockquote>
+        <div class="comparison-card__diagnosis">
+          <p><strong>Diagnosis AI:</strong></p>
+          <p>Penalaran benar. Siswa memahami konsep operasi bilangan negatif dan menjelaskan transformasi dengan benar.</p>
+        </div>
+        <div class="comparison-card__footer">
+          <p><strong>Auto-grader:</strong> <span class="text-success">✓ Benar (1 poin)</span></p>
+          <p><strong>DIAMIS:</strong> <span class="text-success">✓ Konsep solid</span></p>
+        </div>
+      </div>
+    </div>
+    
+    <p style="text-align: center; margin-top: var(--space-12); font-size: var(--text-lg); max-width: 720px; margin-left: auto; margin-right: auto; color: var(--muted);">
+      <strong>Insight:</strong> Kedua siswa dapat skor yang sama di auto-grader. 
+      Namun siswa dengan penalaran keliru memerlukan intervensi karena konsepnya salah. 
+      DIAMIS mendeteksi perbedaan ini dengan membaca penjelasan.
+    </p>
+  </div>
+</section>
+
+<!-- DEMO INTERACTIVE -->
+<section class="section" id="demo">
+  <div class="container">
+    <div class="section__header">
+      <p class="section__kicker">Demo Interaktif</p>
+      <h2 class="section__title">Klik kartu untuk melihat diagnosis AI</h2>
+      <p class="section__desc">
+        Tiga contoh sintetis yang mewakili pola dalam dataset. Klik setiap kartu
+        untuk melihat bagaimana DIAMIS menganalisis penjelasan dan memberikan
+        diagnosis. Skor keyakinan di kartu bersifat ilustratif, bukan keluaran
+        model notebook.
+      </p>
+    </div>
+    
+    <div class="reveal-grid">
+      <!-- CARD 1 -->
+      <div class="reveal-card" onclick="this.classList.toggle('is-revealed')">
+        <span class="reveal-card__badge">Klik untuk analisis</span>
+        <p class="reveal-card__question"><strong>Soal:</strong> Berapa <span class="math">3/4 × 1/2</span>?</p>
+        <p class="reveal-card__answer"><strong>Jawaban:</strong> 3/8 ✓</p>
+        <p class="reveal-card__explanation">
+          "Saya menjumlahkan 3 + 1 = 4 untuk pembilang, dan 4 + 2 = 6 untuk penyebut, 
+          jadi 4/6 = 2/3... eh tunggu, harusnya 3/8."
+        </p>
+        
+        <div class="reveal-card__result">
+          <div class="reveal-card__diagnosis">
+            <p class="reveal-card__diagnosis-title">Miskonsepsi Terdeteksi</p>
+            <p><strong>Tipe:</strong> Additive (menjumlahkan pembilang dan penyebut)</p>
+            <p><strong>Penjelasan:</strong> Siswa awalnya menggunakan operasi penjumlahan 
+            untuk perkalian pecahan, lalu mengoreksi ke jawaban benar tanpa pemahaman.</p>
+            <p><strong>Rekomendasi:</strong> Tinjau ulang konsep perkalian pecahan.</p>
+          </div>
+          <div class="reveal-card__confidence">
+            <p><strong>Skor ilustratif:</strong> 87%</p>
+            <div class="confidence-bar">
+              <div class="confidence-bar__fill" style="--confidence: 87%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- CARD 2 -->
+      <div class="reveal-card" onclick="this.classList.toggle('is-revealed')">
+        <span class="reveal-card__badge">Klik untuk analisis</span>
+        <p class="reveal-card__question"><strong>Soal:</strong> 2/3 dari suatu bilangan adalah 8. Berapa bilangan tersebut?</p>
+        <p class="reveal-card__answer"><strong>Jawaban:</strong> 16/3 ✗</p>
+        <p class="reveal-card__explanation">
+          "Jika 2/3 = 8, maka 1/3 = 4, jadi bilangan penuh = 4 × 3 = 12. Tapi saya pilih 16/3."
+        </p>
+        
+        <div class="reveal-card__result">
+          <div class="reveal-card__diagnosis">
+            <p class="reveal-card__diagnosis-title">Penalaran Benar</p>
+            <p><strong>Situasi:</strong> Contoh sintetis penalaran benar dengan opsi salah</p>
+            <p><strong>Penjelasan:</strong> Siswa memahami cara menyelesaikan soal dengan benar 
+            (12 adalah jawaban yang tepat), namun salah memilih opsi di pilihan ganda.</p>
+            <p><strong>Rekomendasi:</strong> Tidak perlu remediasi konsep, 
+            cukup reminder untuk teliti saat memilih opsi.</p>
+          </div>
+          <div class="reveal-card__confidence">
+            <p><strong>Skor ilustratif:</strong> 92%</p>
+            <div class="confidence-bar">
+              <div class="confidence-bar__fill" style="--confidence: 92%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- CARD 3 -->
+      <div class="reveal-card" onclick="this.classList.toggle('is-revealed')">
+        <span class="reveal-card__badge">Klik untuk analisis</span>
+        <p class="reveal-card__question"><strong>Soal:</strong> Sederhanakan <span class="math">5/15</span></p>
+        <p class="reveal-card__answer"><strong>Jawaban:</strong> 1/3 ✓</p>
+        <p class="reveal-card__explanation">
+          "Saya bagi 5 dengan 5 = 1, dan 15 dengan 5 = 3, jadi 1/3."
+        </p>
+        
+        <div class="reveal-card__result">
+          <div class="reveal-card__diagnosis">
+            <p class="reveal-card__diagnosis-title">Pemahaman Solid</p>
+            <p><strong>Evaluasi:</strong> Penalaran benar dan jawaban benar</p>
+            <p><strong>Penjelasan:</strong> Siswa memahami konsep FPB dan menjelaskan 
+            langkah penyederhanaan pecahan dengan tepat.</p>
+            <p><strong>Rekomendasi:</strong> Tidak ada intervensi diperlukan.</p>
+          </div>
+          <div class="reveal-card__confidence">
+            <p><strong>Skor ilustratif:</strong> 95%</p>
+            <div class="confidence-bar">
+              <div class="confidence-bar__fill" style="--confidence: 95%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: var(--space-16);">
+      <a href="simulasi-ai.html" class="btn btn--primary">Upload Data Sendiri dan Lihat Analisis Batch</a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section section--alt" id="how">
+  <div class="container">
+    <div class="section__header">
+      <p class="section__kicker">Metodologi</p>
+      <h2 class="section__title">Bagaimana DIAMIS bekerja?</h2>
+      <p class="section__desc">
+        Arsitektur 2 tahap: Detektor (3 kelas) kemudian Penama (label spesifik). 
+        Dilatih pada 36.696 respons matematika siswa dari dataset MIME.
+      </p>
+    </div>
+    
+    <div class="process-grid">
+      <div class="process-step">
+        <div class="process-step__number">1</div>
+        <h3 class="process-step__title">Input</h3>
+        <p class="process-step__desc">
+          Soal, jawaban pilihan ganda siswa, dan penjelasan tertulis
+        </p>
+      </div>
+      
+      <div class="process-step">
+        <div class="process-step__number">2</div>
+        <h3 class="process-step__title">Detektor</h3>
+        <p class="process-step__desc">
+          Klasifikasi 3 kelas: Benar, Miskonsepsi, atau Tidak Jelas
+        </p>
+      </div>
+      
+      <div class="process-step">
+        <div class="process-step__number">3</div>
+        <h3 class="process-step__title">Penama</h3>
+        <p class="process-step__desc">
+          Identifikasi tipe miskonsepsi dan confidence score
+        </p>
+      </div>
+      
+      <div class="process-step">
+        <div class="process-step__number">4</div>
+        <h3 class="process-step__title">Triase Guru</h3>
+        <p class="process-step__desc">
+          Prioritaskan penjelasan berisiko untuk tinjauan guru
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section class="section">
+  <div class="container">
+    <div class="section__header">
+      <p class="section__kicker">Hasil Penelitian</p>
+      <h2 class="section__title">Hasil dan aplikasi</h2>
+    </div>
+    
+    <div class="impact-grid">
+      <div class="impact-box">
+        <svg class="impact-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3v18h18"></path>
+          <path d="M18 17V9"></path>
+          <path d="M13 17V5"></path>
+          <path d="M8 17v-3"></path>
+        </svg>
+        <p class="impact-box__text">
+          <strong>Deteksi soal baru:</strong> akurasi 71,4%, macro-F1 0,695 (LOQO, V2 + kalibrasi)
+        </p>
+      </div>
+      <div class="impact-box">
+        <svg class="impact-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+        <p class="impact-box__text">
+          <strong>Peningkatan:</strong> +27,0 poin akurasi dari baseline makalah 44,4% pada 15 soal baru
+        </p>
+      </div>
+      <div class="impact-box">
+        <svg class="impact-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.59 13.41 12 22 2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+          <circle cx="7" cy="7" r="1"></circle>
+        </svg>
+        <p class="impact-box__text">
+          <strong>Penamaan miskonsepsi:</strong> MAP@3 0,9105 dan top-1 0,8365 pada soal dikenal, data terjemahan mesin (1-fold). Metrik ini bukan akurasi deteksi.
+        </p>
+      </div>
+    </div>
+    <p class="impact-note">
+      Angka deteksi dan penamaan berasal dari evaluasi notebook. Penamaan hanya bermakna pada soal yang dikenal; pada soal baru akurasinya 0,023 terhadap batas atas struktural 0,298. Simulator web memakai aturan kata kunci untuk menunjukkan alur kerja, bukan model ini. Aplikasi yang dituju: formative assessment, adaptive learning, dan teacher dashboard.
+    </p>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="section section--alt">
+  <div class="container">
+    <div class="cta-final">
+      <h2 class="cta-final__title">Siap mencoba DIAMIS?</h2>
+      <p class="cta-final__desc">
+        Upload data penjelasan siswa Anda (format CSV atau JSON) dan lihat 
+        analisis miskonsepsi secara real-time.
+      </p>
+      <div class="cta-final__actions">
+        <a href="simulasi-ai.html" class="btn btn--primary">Mulai Simulasi Sekarang</a>
+        <a href="tentang.html" class="btn btn--secondary">Baca Metode dan Batasan</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__content">
+      <div>
+        <p class="logo" style="color: var(--paper);">DIAMIS</p>
+        <p class="footer__tagline">
+          Diagnosis Miskonsepsi Berbasis AI untuk Pendidikan Matematika
+        </p>
+      </div>
+      <div class="footer__links">
+        <a href="index.html">Beranda</a>
+        <a href="simulasi-ai.html">Simulasi</a>
+        <a href="tentang.html">Metode</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p>© 2026 Tim DIAMIS. Data dari MIME dataset. Simulasi untuk evaluasi akademik.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- CANVAS ANIMATION SCRIPT -->
+<script>
+(function() {
+  const canvas = document.getElementById('mathCanvas');
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  let width, height, particles = [];
+  
+  // Resize canvas
+  function resize() {
+    width = canvas.width = canvas.offsetWidth;
+    height = canvas.height = canvas.offsetHeight;
+  }
+  
+  // Particle matematika - lebih visible
+  class MathParticle {
+    constructor() {
+      this.reset();
+      this.y = Math.random() * height; // Start random untuk init
+      this.phase = Math.random() * Math.PI * 2; // Wave phase offset
+    }
+    
+    reset() {
+      this.x = Math.random() * width;
+      this.y = -30;
+      this.baseX = this.x; // Store original X for wave
+      this.size = Math.random() * 4 + 3; // Larger: 3-7
+      this.speedY = Math.random() * 0.8 + 0.4; // Faster: 0.4-1.2
+      this.opacity = Math.random() * 0.4 + 0.25; // More visible: 0.25-0.65
+      this.phase = Math.random() * Math.PI * 2;
+      
+      // Symbol matematika
+      const symbols = ['+', '−', '×', '÷', '=', '≠', '≈', '∞', 'π', '√', '∑', '∫', 
+                       '²', '³', '⅓', '¼', '½', '¾', 'x', 'y', 'n'];
+      this.symbol = symbols[Math.floor(Math.random() * symbols.length)];
+      
+      // Warna emas lebih solid
+      this.color = `rgba(196, 154, 58, ${this.opacity})`;
+    }
+    
+    update() {
+      this.y += this.speedY;
+      
+      // Gelombang sinus lebih jelas
+      this.x = this.baseX + Math.sin(this.y * 0.02 + this.phase) * 30;
+      
+      // Reset jika keluar canvas
+      if (this.y > height + 30) {
+        this.reset();
+      }
+    }
+    
+    draw() {
+      ctx.fillStyle = this.color;
+      ctx.font = `${this.size * 10}px "IBM Plex Mono", monospace`; // Larger font
+      ctx.fillText(this.symbol, this.x, this.y);
+    }
+  }
+  
+  // Init particles
+  function init() {
+    resize();
+    particles = [];
+    const count = Math.floor((width * height) / 8000); // More particles: was 15000
+    for (let i = 0; i < count; i++) {
+      particles.push(new MathParticle());
+    }
+  }
+  
+  // Animation loop
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    
+    requestAnimationFrame(animate);
+  }
+  
+  // Start
+  init();
+  animate();
+  
+  // Resize handler
+  window.addEventListener('resize', init);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tentang, metode, dan batasan | DIAMIS</title>
+  <meta name="description" content="Metode, sumber angka, lisensi, persona, dan batasan demo DIAMIS.">
+  <meta name="theme-color" content="#F6F1E7">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css?v=hasil5">
+</head>
+<body data-page="about">
+  <a class="skip-link" href="#main">Lewati ke isi</a>
+
+  <div class="status-bar">
+    <div class="wrap">SIMULASI UNTUK JURI · DATA CONTOH SINTETIS</div>
+  </div>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="wordmark" href="index.html">DIAMIS</a>
+      <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+      <nav class="nav" id="site-nav" aria-label="Navigasi utama">
+        <a href="index.html">Beranda</a>
+        <a href="simulasi-ai.html">Simulasi AI</a>
+        <a href="tentang.html" aria-current="page">Metode</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="wrap">
+      <header class="about-header">
+        <p class="eyebrow">Bukti Penelitian</p>
+        <h1 class="page-title">Metode, metrik, dan batasan.</h1>
+        <p class="lead">Ringkasan eksperimen DIAMIS pada 36.696 penjelasan tertulis siswa dari 15 soal matematika.</p>
+      </header>
+
+      <section class="about-summary" aria-label="Ringkasan penelitian">
+        <article><strong class="num">36.696</strong><span>respons MIME dianalisis</span></article>
+        <article><strong class="num">15</strong><span>soal dalam data penelitian</span></article>
+        <article><strong class="num">4/34</strong><span>nama miskonsepsi muncul lintas soal</span></article>
+        <article><strong class="num">71,4%</strong><span>akurasi deteksi pada soal baru</span></article>
+      </section>
+
+      <nav class="toc" aria-label="Daftar isi halaman Tentang">
+        <a href="#apa">Apa yang dibangun</a>
+        <a href="#angka">Matriks dan audit label</a>
+        <a href="#metode">Metode</a>
+        <a href="#deteksi">Hasil deteksi</a>
+        <a href="#penamaan">Hasil penamaan</a>
+        <a href="#selektif">Penyaring selektif</a>
+        <a href="#tidak">Batasan sistem</a>
+        <a href="#lisensi">Lisensi dan etika</a>
+        <a href="#persona">Persona</a>
+        <a href="#tim">Tim</a>
+        <a href="#glosarium">Glosarium</a>
+        <a href="#sumber">Sumber</a>
+      </nav>
+
+      <div class="prose">
+        <h2 id="apa">Apa yang dibangun</h2>
+        <p>Nilai akhir menyembunyikan penalaran: dua siswa bisa sama-sama menjawab <strong>-3</strong>, tetapi satu paham konsep bilangan bulat dan satu lagi sekadar menempelkan tanda minus.</p>
+        <p>DIAMIS memisahkan <strong>kebenaran jawaban</strong> (benar/salah) dari <strong>kualitas penjelasan</strong> (benar/miskonsepsi/tidak jelas) ke dalam matriks 2 × 3, lalu menyusun antrean prioritas beserta kutipan bukti bagi guru.</p>
+
+        <h2 id="angka">Matriks 2 × 3 dan audit label</h2>
+        <p>Dihitung dari <span class="math">train.csv</span> (36.696 respons pada 15 soal dataset MIME). Satu baris mewakili satu respons, bukan satu siswa unik.</p>
+
+        <div class="table-scroll" role="region" aria-label="Matriks jawaban dan kelas penjelasan" tabindex="0">
+        <table class="small-matrix">
+          <caption>Matriks 2 × 3 pada 36.696 respons MIME.</caption>
+          <thead>
+            <tr>
+              <th scope="col"><span class="sr-only">Kualitas jawaban</span></th>
+              <th scope="col">Penjelasan benar</th>
+              <th scope="col">Penjelasan miskonsepsi</th>
+              <th scope="col">Penjelasan tidak jelas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Jawaban benar</th>
+              <td class="num">14.802</td>
+              <td class="num">403</td>
+              <td class="num">5.265</td>
+            </tr>
+            <tr>
+              <th scope="row">Jawaban salah</th>
+              <td class="num">227</td>
+              <td class="num">9.457</td>
+              <td class="num">6.542</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+        <p><strong>403 respons</strong> berada di sel jawaban benar + penjelasan miskonsepsi. Auto-grader memberi poin penuh, tetapi penalarannya perlu ditinjau.</p>
+        <p class="note"><strong>227 baris</strong> berlabel <em>Correct</em> memiliki pilihan jawaban berstatus salah. Makalah baru membacanya sebagai temuan audit label, bukan bukti bahwa 227 siswa bernalar benar. Karena itu kendala “Correct hanya untuk jawaban benar” tidak dipakai; setiap soal memiliki satu atau dua opsi benar.</p>
+        <p class="note">Audit juga menemukan <strong>797 baris duplikat</strong> dan <strong>57 kelompok teks identik dengan label berbeda</strong>. Pada pembagian acak, teks identik dikelompokkan agar tidak terpisah antara data latih dan uji. Angka berasal dari dataset MIME berbahasa Inggris, bukan prevalensi nasional Indonesia. Contoh respons sintetis tersedia di <a class="text-link" href="simulasi-ai.html">Simulasi AI</a>.</p>
+
+        <h2 id="metode">Arsitektur dua tahap</h2>
+        <p>DIAMIS memisahkan dua tugas karena hanya <strong>4 dari 34 label miskonsepsi</strong> yang muncul di lebih dari satu soal:</p>
+        <ul>
+          <li><strong>Detektor (3 kelas):</strong> mengklasifikasikan penjelasan menjadi <em>Benar</em>, <em>Miskonsepsi</em>, atau <em>Tidak jelas</em>.</li>
+          <li><strong>Penama (Top-3 spesifik soal):</strong> memeringkat kandidat label miskonsepsi yang valid untuk soal terkait.</li>
+        </ul>
+
+        <h3 id="deteksi">Hasil deteksi 3 kelas pada soal baru</h3>
+        <div class="table-scroll" role="region" aria-label="Hasil deteksi leave-one-question-out" tabindex="0">
+        <table class="metric-table">
+          <caption>Protokol P-B (leave-one-question-out), 15 lipatan, 36.696 respons. V0 dijalankan ulang dengan 30.000 fitur kata.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Konfigurasi</th>
+              <th scope="col" class="num">Akurasi</th>
+              <th scope="col" class="num">Macro-F1 gabungan</th>
+              <th scope="col" class="num">Macro-F1 rata-rata per soal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">V0, baseline makalah</th>
+              <td class="num">44,4%</td>
+              <td class="num">0,425</td>
+              <td class="num">0,383</td>
+            </tr>
+            <tr>
+              <th scope="row">V1, teks + angka dimasking + karakter + fitur umum</th>
+              <td class="num">48,3%</td>
+              <td class="num">0,470</td>
+              <td class="num">0,424</td>
+            </tr>
+            <tr>
+              <th scope="row">V2 mentah</th>
+              <td class="num">66,6%</td>
+              <td class="num">0,662</td>
+              <td class="num">0,630</td>
+            </tr>
+            <tr>
+              <th scope="row">V3, V2 + embedding kalimat</th>
+              <td class="num">65,6%</td>
+              <td class="num">0,659</td>
+              <td class="num">0,610</td>
+            </tr>
+            <tr>
+              <th scope="row">V2 + kalibrasi (model akhir)</th>
+              <td class="num">71,4%</td>
+              <td class="num">0,695</td>
+              <td class="num">0,671</td>
+            </tr>
+            <tr>
+              <th scope="row">V3 + kalibrasi</th>
+              <td class="num">70,5%</td>
+              <td class="num">0,694</td>
+              <td class="num">0,655</td>
+            </tr>
+            <tr>
+              <th scope="row">V2 + V3 + kalibrasi</th>
+              <td class="num">71,3%</td>
+              <td class="num">0,697</td>
+              <td class="num">0,667</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+        <p>Model akhir menaikkan akurasi dari <strong>44,4%</strong> pada baseline menjadi <strong>71,4%</strong>, dan macro-F1 gabungan dari <strong>0,425</strong> menjadi <strong>0,695</strong> pada protokol LOQO yang sama.</p>
+        <p class="note"><strong>Uji H2 (varian fitur):</strong> V2 mengungguli V0 pada 15 dari 15 soal, selisih rata-rata 0,247, CI95% [0,191; 0,303], Wilcoxon p = 6,1 × 10⁻⁵ (Holm ≈ 1,8 × 10⁻⁴). V1 unggul pada 12/15 soal (+0,041; CI [0,013; 0,070]; p = 0,022), V3 pada 14/15 (+0,226; CI [0,170; 0,282]; p = 1,2 × 10⁻⁴). Kalibrasi belum diuji formal.</p>
+        <p class="note"><strong>Uji H1 (soal baru):</strong> baseline ringan turun dari 0,705 pada pembagian acak (seed 42) ke 0,382 pada pembagian per soal. Selisih 0,322, CI95% [0,277; 0,370], p = 6,1 × 10⁻⁵, turun di 15 dari 15 soal. Angka 0,726 adalah baseline pembagian acak berkelompok pada Tabel 4.1; jangan mencampurnya dengan uji H1.</p>
+        <p class="note">V3 (embedding kalimat) tidak menambah kinerja: macro-F1 gabungan 0,659 dan rata-rata antar soal 0,610, lebih rendah dari V2 mentah. Gabungan V2 + V3 setelah kalibrasi mencapai akurasi 0,713, praktis sama dengan V2 + kalibrasi (0,714), sehingga embedding tidak dipakai.</p>
+
+        <h3 id="penamaan">Hasil penamaan miskonsepsi</h3>
+        <p>Penamaan adalah tugas terpisah: model memeringkat nama miskonsepsi yang valid untuk soal terkait. Metriknya MAP@3, bukan akurasi deteksi. Tabel ini diuji pada pembagian acak, yaitu soal yang sudah dikenal model.</p>
+        <div class="table-scroll" role="region" aria-label="Hasil penamaan miskonsepsi" tabindex="0">
+        <table class="metric-table">
+          <caption>Pembagian acak, berbeda dari protokol LOQO di atas. Target 65 kelas dan 36 kelas tidak sebanding.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Model</th>
+              <th scope="col">Target dan protokol</th>
+              <th scope="col" class="num">MAP@3</th>
+              <th scope="col" class="num">Top-1</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">TF-IDF + regresi logistik</th>
+              <td>65 kelas, 5 lipatan, 36.696 baris</td>
+              <td class="num">0,912</td>
+              <td class="num">0,834</td>
+            </tr>
+            <tr>
+              <th scope="row">LinearSVC</th>
+              <td>36 kelas, 5 lipatan, 36.696 baris</td>
+              <td class="num">0,904</td>
+              <td class="num">0,835</td>
+            </tr>
+            <tr>
+              <th scope="row">DistilBERT Inggris</th>
+              <td>36 kelas, 1 dari 5 lipatan, ±2.000 baris</td>
+              <td class="num">0,913</td>
+              <td class="num">0,843</td>
+            </tr>
+            <tr>
+              <th scope="row">IndoDistilBERT</th>
+              <td>36 kelas, 1 dari 5 lipatan, ±2.000 terjemahan mesin</td>
+              <td class="num">0,9105</td>
+              <td class="num">0,8365</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+        <p class="note"><strong>0,9105 adalah MAP@3 penamaan</strong>, bukan akurasi deteksi, dan tidak boleh dibandingkan langsung dengan 71,4% atau 0,695. Hasil IndoDistilBERT berasal dari 10.000 terjemahan mesin, satu lipatan, sekitar 2.000 baris uji. Hit@3-nya 0,990; DistilBERT Inggris 0,9895; regresi logistik 0,995. Himpunan uji dan masukan model berbeda, sehingga kisaran 0,904–0,913 dibaca sebagai gambaran awal, bukan peringkat final.</p>
+        <p class="note"><strong>Penamaan pada soal baru:</strong> dengan LOQO, fitur teks saja, dan baris bermiskonsepsi, akurasi penamaan hanya <strong>0,023</strong> terhadap batas atas struktural <strong>0,298</strong>. Recall nama lintas soal: Incomplete 0,001; Irrelevant 0,107; WNB 0,000; Wrong_Fraction 0,246. Karena itu penamaan diposisikan untuk soal yang sudah dikenal, bukan soal baru buatan guru.</p>
+
+        <h3 id="selektif">Penyaring selektif: menyerahkan yang tidak yakin kepada guru</h3>
+        <p>Pada V2 sebelum kalibrasi, ambang keyakinan menentukan berapa banyak penjelasan yang dilayani model dan sisanya masuk tinjauan guru.</p>
+        <div class="table-scroll" role="region" aria-label="Hasil penyaring selektif V2 sebelum kalibrasi" tabindex="0">
+        <table class="metric-table">
+          <caption>V2 sebelum kalibrasi, protokol P-B. Ambang dipilih pada data yang sama, sehingga angkanya cenderung optimistis.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Ambang keyakinan</th>
+              <th scope="col" class="num">Cakupan</th>
+              <th scope="col" class="num">Akurasi terlayani</th>
+              <th scope="col" class="num">Macro-F1 terlayani</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">0,80</th>
+              <td class="num">45,4%</td>
+              <td class="num">77,3%</td>
+              <td class="num">0,762</td>
+            </tr>
+            <tr>
+              <th scope="row">0,90</th>
+              <td class="num">23,4%</td>
+              <td class="num">82,7%</td>
+              <td class="num">0,804</td>
+            </tr>
+            <tr>
+              <th scope="row">0,95</th>
+              <td class="num">10,6%</td>
+              <td class="num">87,7%</td>
+              <td class="num">0,835</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="note">Pada ambang 0,90, 23,4% penjelasan dilayani dengan akurasi 82,7% dan macro-F1 0,804; sisanya diserahkan kepada guru. Model akhir memakai ambang 0,80, tetapi cakupan dan akurasi tepatnya belum dicetak di notebook, sehingga tabel ini tidak boleh dibaca sebagai kinerja model akhir.</p>
+        <p class="note"><strong>Batas klaim:</strong> angka 71,4% dan 0,695 adalah hasil evaluasi notebook pada data MIME berbahasa Inggris. Simulator web memakai aturan kata kunci, bukan model ini, dan skornya ilustratif.</p>
+
+        <h2 id="tidak">Batasan sistem</h2>
+        <ul>
+          <li><strong>Bukan pengganti guru:</strong> AI menyaring antrean, guru menetapkan keputusan akhir.</li>
+          <li><strong>Bukan penentu nilai rapor:</strong> khusus asesmen diagnostik/formatif.</li>
+          <li><strong>Belum tervalidasi nasional:</strong> 15 soal berbahasa Inggris, didominasi pecahan dan aljabar dasar. Belum ada set uji siswa Indonesia asli.</li>
+          <li><strong>Ambiguitas label:</strong> 227 baris berlabel Correct memiliki status pilihan salah; 797 baris duplikat dan 57 kelompok teks identik berlabel berbeda. Label ahli tetap mengandung noise, terutama pada kelas Neither.</li>
+          <li><strong>Pemilihan model:</strong> konfigurasi akhir, offset kelas, dan ambang dipilih dari probabilitas luar-sampel yang sama dengan yang dilaporkan, sehingga 71,4% dan 0,695 cenderung optimistis. Offset +1,0 berada tepat di batas grid pencarian (−1,0 sampai 1,0).</li>
+          <li><strong>Transformer satu lipatan:</strong> DistilBERT dan IndoDistilBERT diuji pada satu dari lima lipatan, sekitar 2.000 baris uji, tanpa replikasi seed. Himpunan uji dan masukan berbeda, jadi perbandingan 0,904–0,913 bersifat awal.</li>
+          <li><strong>Batas terjemahan:</strong> 10.000 baris diterjemahkan mesin, sekitar 27% data, tanpa validasi penilai manusia. Istilah informal dan notasi matematika dapat bergeser; jalur soal Indonesia ke Inggris baru didemonstrasikan pada satu soal buatan tanpa label.</li>
+          <li><strong>Asumsi kunci jawaban:</strong> V2 dan V3 memakai status kunci dari prefiks <code>True_</code>/<code>False_</code>. Di produksi status itu harus dihitung dari kunci guru; notebook mengasumsikan kunci tersedia saat soal dibuat.</li>
+          <li><strong>Penyaring selektif:</strong> tabel cakupan dan akurasi terlayani berasal dari V2 sebelum kalibrasi. Model akhir memakai ambang 0,80, tetapi cakupan dan akurasi tepatnya belum dilaporkan.</li>
+          <li><strong>Belum diuji bersama guru:</strong> penelitian ini eksperimen offline; manfaat sebagai penyaring awal belum diuji di kelas.</li>
+          <li><strong>Simulator bukan model:</strong> halaman Simulasi AI memakai aturan kata kunci; skornya ilustratif, bukan probabilitas terkalibrasi.</li>
+        </ul>
+
+        <h2 id="lisensi">Lisensi dan etika</h2>
+        <p>Dataset MIME berlisensi CC BY-NC 4.0. Demo ini hanya memuat parafrase sintetis tanpa data pribadi. Implementasi sekolah wajib mematuhi UU PDP, minimisasi data, dan menyertakan fitur koreksi label oleh guru.</p>
+
+        <h2 id="persona">Persona dan rencana validasi</h2>
+        <p>Persona guru pada rancangan ini disusun dari literatur beban kerja guru dan asesmen formatif di Indonesia. Validasi lapangan dirancang bersama 5–8 guru mitra pada tahap pilot.</p>
+
+        <h2 id="tim">Tim</h2>
+        <ul class="team-list">
+          <li>Mahdi Habibi <span>Peneliti</span></li>
+          <li>Gema Satya Danera <span>Peneliti</span></li>
+          <li>Nabilah Aulia Zahra <span>Peneliti</span></li>
+          <li>M. Faris Al Hakim, S.Pd., M.Cs. <span>Dosen pembimbing</span></li>
+        </ul>
+        <p>Program Studi Teknik Informatika, FMIPA, Universitas Negeri Semarang.</p>
+        <p class="contact-note">Kontak tim akan ditambahkan saat publikasi. Tidak ada alamat email yang dikarang untuk demo ini.</p>
+
+        <h2 id="glosarium">Glosarium</h2>
+        <dl class="glossary">
+          <dt>Miskonsepsi</dt>
+          <dd>Keyakinan atau aturan yang salah dan diterapkan secara konsisten, bukan sekadar salah hitung sekali.</dd>
+          <dt>Tacking</dt>
+          <dd>Menempelkan tanda negatif pada hasil tanpa menghitung operasi bilangan bulat dengan benar.</dd>
+          <dt>Matriks 2 × 3</dt>
+          <dd>Pemetaan jawaban benar atau salah terhadap tiga kelas penjelasan: benar, miskonsepsi, tidak jelas.</dd>
+          <dt>Macro-F1</dt>
+          <dd>Rata-rata F1 per kelas dengan bobot setara, sehingga kelas kecil tidak tenggelam oleh kelas mayoritas.</dd>
+          <dt>MAP@3</dt>
+          <dd>Mean average precision at 3. Metrik peringkat untuk menilai tiga label teratas, bukan akurasi deteksi.</dd>
+          <dt>Data sintetis</dt>
+          <dd>Contoh yang disusun ulang untuk demo, bukan baris mentah MIME dan bukan data siswa Indonesia.</dd>
+          <dt>Mode Pilot</dt>
+          <dd>Ruang kerja guru yang belum dibangun. Rencananya dibahas di bagian batasan dan rencana validasi.</dd>
+          <dt>Skor ilustratif</dt>
+          <dd>Angka demo yang belum dikalibrasi. Bukan probabilitas dan tidak boleh dibaca sebagai keyakinan model yang teruji.</dd>
+        </dl>
+
+        <h2 id="sumber">Sumber</h2>
+        <ul class="source-list">
+          <li>Habibi, M., Danera, G. S., &amp; Zahra, N. A. (2026). <em>DIAMIS: Evaluasi Pendekatan Klasifikasi Penjelasan Tertulis Siswa untuk Diagnosis Miskonsepsi Matematika.</em> Makalah kompetisi DIMAS-TI 2026, Universitas Negeri Semarang.</li>
+          <li>Rittle-Johnson, B., Adler, R., Durkin, K., Burleigh, L., King, J., &amp; Crossley, S. A. (2025). Detecting math misconceptions: An AI benchmark dataset. <em>Proceedings of the AI Measurement in Education Conference (AIME-Con): Works in Progress</em>. <a href="https://aclanthology.org/2025.aimecon-wip.3/">aclanthology.org/2025.aimecon-wip.3</a></li>
+          <li>Vanderbilt University &amp; The Learning Agency. (2025). <em>MAP: Charting Student Math Misunderstandings.</em> Kaggle. <a href="https://www.kaggle.com/competitions/map-charting-student-math-misunderstandings">kaggle.com/competitions/map-charting-student-math-misunderstandings</a></li>
+          <li>Crossley, S. A., et al. (2026). Automated approaches for scoring math misunderstandings in student self-explanations. <em>Proceedings of the AI Measurement in Education Conference (AIME-Con), Vol. 1: Full Papers</em>, 297–302. <a href="https://aclanthology.org/2026.aimecon-main.33/">aclanthology.org/2026.aimecon-main.33</a></li>
+          <li>Yusuf, M., Yaumi, M., &amp; Hanafi, M. S. (2021). Elementary teacher professionalism and workload. <em>International Journal of Asian Education, 2</em>(4). <a href="https://doi.org/10.46966/ijae.v2i4.248">doi.org/10.46966/ijae.v2i4.248</a></li>
+          <li>Zulaikha, S., Fadholi, M., Sururi, S., Syahril, S., Jamil, S. N., &amp; Ariyanti, P. N. (2025). Bridging the digital divide: Assessing and advancing teachers’ digital literacy across Indonesian provinces. <em>Journal of Educational Management and Instruction, 5</em>(1). <a href="https://doi.org/10.22515/jemin.v5i1.11586">doi.org/10.22515/jemin.v5i1.11586</a></li>
+          <li>Nursalim. (2026). Formative assessment and teacher workload in Indonesian primary schools: A systematic literature review. <em>Journal of Educational Analytics, 5</em>(2). <a href="https://doi.org/10.55927/jeda.v5i2.22">doi.org/10.55927/jeda.v5i2.22</a></li>
+        </ul>
+        <p class="note">Dossier internal memuat 24 sumber dengan DOI dan catatan batas transfer. Sumber di halaman ini mendukung konteks dan kebutuhan, bukan efektivitas produk DIAMIS.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p class="footer-brand">DIAMIS</p>
+      <p>Simulasi untuk juri. Bukan pilot.</p>
+      <p>Data MIME: CC BY-NC 4.0. Contoh di halaman ini disintesiskan.</p>
+      <p>Tidak ada data pribadi.</p>
+      <p>Dibuat oleh tim DIAMIS, Universitas Negeri Semarang.</p>
+      <nav class="footer-nav" aria-label="Navigasi footer">
+        <a href="tentang.html#glosarium">Glosarium</a>
+        <a href="tentang.html#lisensi">Lisensi dan etika</a>
+      </nav>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
