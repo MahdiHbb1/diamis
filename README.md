@@ -1,5 +1,7 @@
 # DIAMIS
 
+**Demo online:** https://mahdihbb1.github.io/diamis/
+
 Demo statis tiga halaman untuk DIAMIS, alat bantu diagnosis miskonsepsi matematika. Situs membaca penjelasan tertulis siswa, memisahkan kualitas jawaban dari kualitas penalaran, lalu menunjukkan kasus yang perlu ditinjau guru.
 
 Repo ini hanya berisi situs demo yang siap disajikan. Dokumen riset, notebook, data mentah, dan halaman arsip tidak disertakan.
